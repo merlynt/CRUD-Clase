@@ -1,0 +1,17 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+@model appWeb2.Models.VideoJuego
+
+<h2>Eliminar Video Juego</h2>
+<h4>¿Estás seguro que desear eliminar esto?</h4>
+
+<div>
+	<strong>@Model.titulo</strong>- $@Model.precio
+</div>
+
+<form asp-action="Delete">
+	<input type="hidden" asp-for="id"/>
+	<button type="submit" class="btn btn-danger">Eliminar</button>
+	<a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

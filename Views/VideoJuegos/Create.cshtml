@@ -1,0 +1,29 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+@model appWeb2.Models.VideoJuego
+
+<h2>Crear Video Juego</h2>
+<form asp-action="Create" method="Post">
+	<div>
+		<label>Titulo</label>
+		<input asp-for="titulo" class="form-control"/>
+		<span asp-validation-for="titulo"></span>
+	</div>
+	<div>
+		<label>Precio</label>
+		<input asp-for="precio" class="form-control" />
+		<div asp-validation-summary="All" class="text-danger"></div>
+		<span asp-validation-for="precio"></span>
+	</div>
+	<div>
+		<label>Categoría</label>
+		<input asp-for="categoria" class="form-control" />
+		<span asp-validation-for="categoria"></span>
+	</div>
+	<div>
+		<label>Descripcion</label>
+		<textarea asp-for="descripcion" class="form-control"></textarea>
+	</div>
+	<button type="submit" class="btn btn-primary">Crear</button>
+</form>

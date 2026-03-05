@@ -1,0 +1,76 @@
+﻿<style>
+   
+    .card-custom {
+        background-color: #1e293b; 
+        color: #f8fafc;
+        border: 1px solid #334155;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%; 
+    }
+
+        .card-custom:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #3b82f6; 
+
+        }
+
+    .price-tag {
+        font-size: 1.25rem;
+        color: #10b981; 
+        font-weight: bold;
+    }
+
+    .category-badge {
+        background-color: #334155;
+        color: #94a3b8;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white border-bottom border-primary pb-2">Catálogo de Juegos</h2>
+        <span class="badge bg-primary">@Model.Count Disponibles</span>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var juego in Model)
+        {
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card card-custom shadow-lg">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title text-info mb-0">@juego.titulo</h5>
+                        </div>
+
+                        <span class="category-badge mb-3 w-fit-content">
+                            <i class="fas fa-tag me-1"></i> @juego.categoria
+                        </span>
+
+                        <p class="card-text text-secondary flex-grow-1">
+                            @(juego.descripcion.Length > 80 ? juego.descripcion.Substring(0, 80) + "..." : juego.descripcion)
+                        </p>
+
+                        <hr class="border-secondary opacitiy-25">
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="price-tag">$@juego.precio</span>
+                            <a asp-action="Details" asp-route-id="@juego.id" class="btn btn-outline-info btn-sm">
+                                Comprar 🛒
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
