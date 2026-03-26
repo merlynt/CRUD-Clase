@@ -1,22 +1,135 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+/*INICIO*/
+html, body {
+    height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    background-color: #00181d;
 }
+
+
+.navbar-custom {
+    background-color: #00416c;
+}
+
+    .navbar-custom .nav-link {
+        color: #ffffb0;
+        transition: 0.3s;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: #ffc950;
+        }
+
+
+.btn-accent {
+    background-color: #d55829;
+    color: white;
+    border-radius: 20px;
+    padding: 6px 16px;
+    transition: 0.3s;
+}
+
+    .btn-accent:hover {
+        background-color: #ffc950;
+        color: black;
+    }
+
+.navbar-custom .nav-link {
+    font-size: 1.2rem;
+}
+
+.navbar-brand {
+    font-size: 2rem;
+}
+
+.banner {
+    background: url('/img/banner.png');
+    background-size: cover;
+    background-position: center;
+    background-position: center top;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 300px 0;
+}
+
+
+.game-card {
+    border-radius: 15px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    position: relative;
+    transition: 0.3s;
+}
+
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+    }
+
+
+.game-img {
+    height: 220px;
+    object-fit: cover;
+}
+
+
+.badge-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: red;
+    color: white;
+    padding: 5px 15px;
+    font-weight: bold;
+    border-bottom-right-radius: 10px;
+}
+
+
+.favorite {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 22px;
+    color: red;
+    cursor: pointer;
+}
+
+
+.price {
+    color: #333;
+    font-weight: bold;
+}
+
+
+.footer-custom {
+    background-color: #00416c;
+    color: #ffffb0;
+    margin-top: auto;
+}
+
+.feature-card {
+    background-color: #002a33;
+    color: #ffffb0;
+    padding: 25px;
+    border-radius: 15px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+
+    .feature-card i {
+        font-size: 40px;
+        color: #ffc950;
+        margin-bottom: 10px;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0px 0px 15px #d55829;
+        background-color: #00416c;
+    }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace appWeb2.Models
 {
@@ -17,6 +18,16 @@ namespace appWeb2.Models
         public string categoria { get; set; }
         [Required]
         public string descripcion { get; set; }
+
+        [Column("fecha_lanzamiento")]
+        public DateOnly fechaLanzamiento { get; set; }
+
+        [Column("porcentaje_descuento")]
+        public decimal? porcentajeDescuento { get; set; }
+
+        [Column("clasificacion_edad")]
+        public string? clasificacionEdad { get; set; }
+        public string? imagen { get; set; }
         //public ICollection<Compra> Compras { get; set; }
 
 

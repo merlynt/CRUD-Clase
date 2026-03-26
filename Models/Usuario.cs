@@ -13,8 +13,10 @@ namespace appWeb2.Models
         [Required]
         public string correo { get; set; }
         [Required]
-        public string contrasena { get; set; }
+        public byte[] contrasena { get; set; }
         [Required]
+
+        public string salt { get; set; }
 
         public DateTime fechaRegistro { get; set; } = DateTime.Now;
 

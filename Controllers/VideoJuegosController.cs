@@ -28,16 +28,26 @@ namespace appWeb2.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
 
-        public async Task<IActionResult> Create(VideoJuego juego)
+        public async Task<IActionResult> Create(VideoJuego juego, IFormFile archivoImagen)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(juego);
+
+            if (archivoImagen != null && archivoImagen.Length > 0)
             {
-                _context.Add(juego);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(archivoImagen.FileName);
+                var ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", nombreArchivo);
+                using (var stream = new FileStream(ruta, FileMode.Create))
+                {
+                    await archivoImagen.CopyToAsync(stream);
+                }
+                juego.imagen = "/images/" + nombreArchivo;
             }
-            return View(juego);
+
+            _context.VideoJuegos.Add(juego);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -50,28 +60,61 @@ namespace appWeb2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Edit(int id, VideoJuego juego)
+        public async Task<IActionResult> Edit(int id, VideoJuego juego, IFormFile? archivoImagen)
         {
-            if (id != juego.id) return NotFound();
+            if (id != juego.id)
+                return NotFound();
+
+            var juegoDB = await _context.VideoJuegos.FindAsync(id);
+
+            if (juegoDB == null)
+            {
+                return NotFound();
+            }
+
+
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(juego);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.VideoJuegos.Any(e => e.id == juego.id))
+                juegoDB.titulo = juego.titulo;
+                juegoDB.precio = juego.precio;
+                juegoDB.categoria = juego.categoria;
+                juegoDB.descripcion = juego.descripcion;
+                juegoDB.fechaLanzamiento = juego.fechaLanzamiento;
+                juegoDB.porcentajeDescuento = juego.porcentajeDescuento;
+                juegoDB.clasificacionEdad = juego.clasificacionEdad;
 
-                        return NotFound();
-                    else
-                        throw;
+                if (archivoImagen != null && archivoImagen.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(juegoDB.imagen))
+                    {
+                        var rutaAnterior = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            juegoDB.imagen.TrimStart('/')
+                        );
 
+
+                    }
+
+                    var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(archivoImagen.FileName);
+                    var ruta = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot/images",
+                        nombreArchivo
+                    );
+
+                    using (var stream = new FileStream(ruta, FileMode.Create))
+                    {
+                        await archivoImagen.CopyToAsync(stream);
+                    }
+                    juegoDB.imagen = "/images/" + nombreArchivo;
                 }
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+
             }
             return View(juego);
+
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -96,5 +139,7 @@ namespace appWeb2.Controllers
             return RedirectToAction(nameof(Index));
 
         }
+
+        
     }
 }

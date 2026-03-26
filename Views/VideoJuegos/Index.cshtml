@@ -87,7 +87,11 @@
 			<th>Titulo</th>
 			<th>Descripcion</th>
 			<th>Categoria</th>
+			<th>Clasificacion</th>
 			<th>Precio</th>
+			<th>Imagen</th>
+			<th>Fecha de lanzamiento</th>
+			<th>Descuento %</th>
 			<th>Acciones</th>
 		</tr>
 	</thead>
@@ -98,7 +102,22 @@
 				<td><strong>@juego.titulo</strong></td>
 				<td>@juego.descripcion</td>
 				<td><span class="badge bg-secondary">@juego.categoria</span></td>
+				<td>@juego.clasificacionEdad</td>
 				<td>$@juego.precio</td>
+				<td><img src="@juego.imagen" width="120" /></td>
+				<td>@juego.fechaLanzamiento.ToString("dd MMMM yyyy")</td>
+				<td>
+					@if (juego.porcentajeDescuento > 0)
+					{
+						<span class="badge rounded-pill bg-success">
+							<i class="bi bi-tag-fill"></i> -@juego.porcentajeDescuento%
+						</span>
+					}
+					else
+					{
+						<span class="text-muted small">Sin oferta</span>
+					}
+				</td>
 				<td>
 					<div class="actions-container justify-content-center">
 						<a asp-action="Edit" asp-route-id="@juego.id" class="btn-action btn-edit" title="Editar">

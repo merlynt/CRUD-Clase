@@ -4,7 +4,7 @@
 @model appWeb2.Models.VideoJuego
 
 <h2>Crear Video Juego</h2>
-<form asp-action="Create" method="Post">
+<form asp-action="Create" method="Post" enctype="multipart/form-data">
 	<div>
 		<label>Titulo</label>
 		<input asp-for="titulo" class="form-control"/>
@@ -22,8 +22,26 @@
 		<span asp-validation-for="categoria"></span>
 	</div>
 	<div>
+		<label>Clasificacion </label>
+		<input asp-for="clasificacionEdad" class="form-control" />
+		<span asp-validation-for="clasificacionEdad"></span>
+	</div>
+	<div>
 		<label>Descripcion</label>
 		<textarea asp-for="descripcion" class="form-control"></textarea>
+	</div>
+	<div>
+		<label asp-for="fechaLanzamiento" class="form-control-label">Fecha de lanzamiento</label>
+		<input asp-for="fechaLanzamiento" type="date" class="form-control">
+		<span asp-validation-for="fechaLanzamiento" class="text-danger"></span>
+	</div>
+	<div>
+		<label asp-for="porcentajeDescuento" class="form-control-label">Porcentaje descuento</label>
+		<input asp-for="porcentajeDescuento" type="number" step="0.01" class="form-control">
+	</div>
+	<div>
+		<label>Imagen URL</label>
+		<input type="file" name="archivoImagen" class="form-control" />
 	</div>
 	<button type="submit" class="btn btn-primary">Crear</button>
 </form>

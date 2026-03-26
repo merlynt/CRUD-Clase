@@ -1,0 +1,31 @@
+﻿
+@model appWeb2.Models.Login
+@{
+	Layout = null;
+}
+
+<div class="container mt-5">
+	<div class="col-md-4 mx-auto">
+		<div class="card p-4 shadow rounded-4">
+			<h3 class="text-center mb-3">Iniciar sesion</h3>
+			@if(ViewBag.Error != null)
+			{
+				<div class="alert alert-danger">
+					@ViewBag.Error
+				</div>
+			}
+			<form method="post" asp-action="login">
+				<div class="mb-3">
+					<label>Correo electrónico</label>
+					<input type="email" class="form-control" asp-for="correo" required/>
+				</div>
+				<div class="mb-3">
+					<label>Contraseña</label>
+					<input type="password" class="form-control" asp-for="contrasena" required />
+				</div>
+				<button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+			</form>
+		</div>
+	</div>
+</div>
+
