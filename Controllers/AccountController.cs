@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using appWeb2.Data;
+using appWeb2.Filters;
 using appWeb2.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,30 +15,25 @@ namespace appWeb2.Controllers
         {
             _context = context;
         }
-        public IActionResult Index()
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [SessionAuthorize]
+        public IActionResult Dashboard()
         {
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
 
         public IActionResult Login(Login model)
         {
-            /*
-            var user = _context.Usuarios.FirstOrDefault(u => u.correo == correo && u.contrasena == contrasena);
-            if (user != null)
-            {
-                HttpContext.Session.SetString("usuario", user.nombre);
-                Console.WriteLine($"Usuario {user.nombre} ha iniciado sesión.");
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                ViewBag.Error = "Correo o contraseña incorrectos.";
-                return View("Index");
-            }
-            */
-
+           
             var user = _context.Usuarios
             .FirstOrDefault(u => u.correo == model.correo);
 
@@ -46,10 +42,17 @@ namespace appWeb2.Controllers
                 string saltedContrasena = user.salt + model.contrasena;
                 using (SHA256 sha256 = SHA256.Create())
                 { 
-                    byte[] inputBytes = Encoding.UTF8.GetBytes(saltedContrasena);
+                    //byte[] inputBytes = Encoding.UTF8.GetBytes(saltedContrasena);
+                    byte[] inputBytes = Encoding.Unicode.GetBytes(saltedContrasena);
                     byte[] hashBytes = sha256.ComputeHash(inputBytes);
+                    Console.WriteLine("Salt DB: " + user.salt);
+                    Console.WriteLine("Password input: " + model.contrasena);
+                    Console.WriteLine("Salted: " + (user.salt + model.contrasena));
 
-                    if(hashBytes.SequenceEqual(user.contrasena))
+                    Console.WriteLine("Hash generado: " + Convert.ToBase64String(hashBytes));
+                    Console.WriteLine("Hash DB: " + Convert.ToBase64String(user.contrasena));
+
+                    if (hashBytes.SequenceEqual(user.contrasena))
                     {
                         HttpContext.Session.SetString("usuario", user.nombre);
     
@@ -61,15 +64,15 @@ namespace appWeb2.Controllers
             }
             
             ViewBag.Error = "Correo o contraseña incorrectos.";
-            return View("Index");
+            return View("Login");
            
 
         }
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
-            return RedirectToAction("Index");
+            HttpContext.Session.Clear(); 
+            return RedirectToAction("Login", "Account");
         }
     }
 }

@@ -19,10 +19,10 @@ namespace appWeb2.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.CategoriasDisponibles = await _context.VideoJuegos
-                                          .Select(j => j.categoria)
-                                          .Distinct()
-                                          .OrderBy(c => c)
-                                          .ToListAsync();
+                                            .Select(j => j.categoria)
+                                            .Distinct()
+                                            .OrderBy(c => c)
+                                            .ToListAsync();
 
             var juegos = await _context.VideoJuegos.ToListAsync();
             return View(juegos);
