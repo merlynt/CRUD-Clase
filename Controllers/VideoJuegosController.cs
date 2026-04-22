@@ -17,7 +17,6 @@ namespace appWeb2.Controllers
 
         public async Task<IActionResult> Index()
         {
-           
      
             var juegos = await _context.VideoJuegos.ToListAsync();
             return View(juegos);
@@ -82,6 +81,7 @@ namespace appWeb2.Controllers
                 juegoDB.titulo = juego.titulo;
                 juegoDB.precio = juego.precio;
                 juegoDB.categoria = juego.categoria;
+                juegoDB.idCategoria = juego.idCategoria;
                 juegoDB.descripcion = juego.descripcion;
                 juegoDB.fechaLanzamiento = juego.fechaLanzamiento;
                 juegoDB.porcentajeDescuento = juego.porcentajeDescuento;

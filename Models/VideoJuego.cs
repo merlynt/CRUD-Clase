@@ -19,6 +19,13 @@ namespace appWeb2.Models
         [Required]
         public string descripcion { get; set; }
 
+        [Column("id_categoria")]
+        public int idCategoria { get; set; }
+
+        [ForeignKey("idCategoria")]
+        public Categoria Categoria { get; set; }
+
+        [Required]
         [Column("fecha_lanzamiento")]
         public DateOnly fechaLanzamiento { get; set; }
 

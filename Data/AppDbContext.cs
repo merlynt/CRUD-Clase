@@ -12,5 +12,9 @@ namespace appWeb2.Data
         public DbSet<VideoJuego> VideoJuegos { get; set; }
         public DbSet<Compra> Compras { get; set; }
 
+        public DbSet<Categoria> Categorias { get; set; }
+
+        public DbSet<DetalleCompra> DetallesCompra { get; set; }
+
     }
 }

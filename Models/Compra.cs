@@ -16,11 +16,5 @@ namespace appWeb2.Models
 
         public Usuario Usuario { get; set; }
 
-        public int VideoJuegoId { get; set; }
-        [ForeignKey("VideoJuegoId")]
-
-        public VideoJuego VideoJuego { get; set; }
-
-
     }
 }

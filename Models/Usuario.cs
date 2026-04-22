@@ -18,7 +18,7 @@ namespace appWeb2.Models
 
         public string salt { get; set; }
 
-        public DateTime fechaRegistro { get; set; } = DateTime.Now;
+        public DateTime? fechaRegistro { get; set; } = DateTime.Now;
 
         public ICollection<Compra> compras { get; set; }
     }
