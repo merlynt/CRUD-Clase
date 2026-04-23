@@ -4,7 +4,6 @@
     Layout = "~/Views/Shared/_Layout1.cshtml";
 }
 
-
 @model IEnumerable<appWeb2.Models.VideoJuego>
 
 <div class="container mt-5">
@@ -176,8 +175,69 @@
                         </div>
 
                     </div>
+                    <div class="p-3">
+                        <div class="paypal-btn-wrapper" data-juego-id="@juego.id" id="paypal-button-container-@juego.id"></div>
+                    </div>
                 </div>
             </div>
         }
     </div>
 </div>
+@section Scripts {
+    <script src="https://www.paypal.com/sdk/js?client-id=AbHZfgDm_PVlYsDXdPl144asu0P3pGPCDuZPmblOsLLJZ4K--87fx1KduQUQVbaEIlrZi2eaDGE_5dGz&currency=USD"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const contenedores = document.querySelectorAll('.paypal-btn-wrapper');
+
+            contenedores.forEach(contenedor => {
+                const videoJuegoId = contenedor.getAttribute('data-juego-id');
+                const contenedorId = contenedor.id;
+
+                renderizarBotonPaypal(videoJuegoId, contenedorId);
+            });
+
+        });
+
+        function renderizarBotonPaypal(videoJuegoId, contenedorId) {
+            paypal.Buttons({
+                createOrder: async (data, actions) => {
+                    const response = await fetch('/api/Checkout/create-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            videoJuegoId: videoJuegoId
+                        })
+                    });
+
+                    const order = await response.json();
+                    return order.id;
+                },
+
+                onApprove: async (data, actions) => {
+                    const response = await fetch('/api/Checkout/capture-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orderId: data.orderID,
+                            videoJuegoId: videoJuegoId,
+                            usuarioId: 8 
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert("¡Compra realizada con éxito!");
+                        window.location.reload();
+                    } else {
+                        alert("Hubo un error al registrar la compra.");
+                    }
+                },
+
+                onError: (err) => {
+                    console.error("Error en PayPal: ", err);
+                }
+            }).render(`#${contenedorId}`);
+        }
+    </script>
+}
