@@ -73,21 +73,21 @@ namespace appWeb2.Controllers
 
             return Json(data);
         }
-        //public IActionResult ObtenerVentasPastel()
-        //{
-        //    var data = _context.Compras
-        //        .GroupBy(c => c.VideoJuego.titulo)
-        //        .Select(g => new
-        //        {
-        //            name = g.Key,      
-        //            y = g.Count()      
-        //        })
-        //        .OrderByDescending(x => x.y)
-        //        .Take(5)
-        //        .ToList();
+        public IActionResult ObtenerVentasPastel()
+        {
+            var data = _context.DetallesCompra
+                .GroupBy(c => c.VideoJuego.titulo)
+                .Select(g => new
+                {
+                    name = g.Key,
+                    y = g.Sum(c => c.cantidad)
+                })
+                .OrderByDescending(x => x.y)
+                .Take(5)
+                .ToList();
 
-        //    return Json(data);
-        //}
+            return Json(data);
+        }
         public IActionResult ObtenerRegistroUsuarios(string periodo)
         {
             var query = _context.Usuarios.AsQueryable();
@@ -124,26 +124,29 @@ namespace appWeb2.Controllers
             return Json(datosAnuales);
         }
 
-        //public IActionResult ObtenerIngresosPorCategoria()
-        //{
-        //    var data = _context.Compras
-        //        .GroupBy(c => c.VideoJuegos.Categoria.categoria) 
-        //        .Select(g => new
-        //        {
-        //            name = g.Key,
-        //            y = g.Sum(x => x.VideoJuego.precio)
-        //        })
-        //        .OrderByDescending(x => x.y)
-        //        .ToList();
+        public IActionResult ObtenerIngresosPorCategoria()
+        {
+            var data = _context.DetallesCompra
+                .GroupBy(c => c.VideoJuego.Categoria.categoria) 
+                .Select(g => new
+                {
+                    name = g.Key,
+                    y = g.Sum(x => x.VideoJuego.precio * x.cantidad)
+                })
+                .OrderByDescending(x => x.y)
+                .ToList();
 
-        //    return Json(data);
-        //}
+            return Json(data);
+        }
+
+        [SessionAuthorize]
         public async Task<IActionResult> DetalleVentas(DateTime? desde, DateTime? hasta, int pagina = 1)
         {
             int paginador = 10;
 
             var query = _context.DetallesCompra
                 .Include(d => d.Compra)
+                    .ThenInclude(c => c.Usuario)
                 .Include(c => c.VideoJuego)
                 .AsQueryable();
 
@@ -166,7 +169,8 @@ namespace appWeb2.Controllers
                 .Select(d => new VentasViewModel
                 {
                   idCompra = d.idCompra,
-                  VideoJuegosId = d.VideoJuegosId,
+                  NombreUsuario = d.Compra.Usuario.nombre,
+                  NombreVideoJuego = d.VideoJuego.titulo,
                   cantidad = d.cantidad,
                   total = d.total,
                   estadoCompra = d.estadoCompra,

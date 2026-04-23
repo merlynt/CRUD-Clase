@@ -12,7 +12,9 @@ namespace appWeb2.Models
         public DateTime fechaCompra { get; set; }
         public int UsuarioId { get; set; }
 
+        public string NombreUsuario { get; set; }
         public int VideoJuegosId { get; set; }
+        public string NombreVideoJuego { get; set; }
 
         public int cantidad { get; set; }
 
