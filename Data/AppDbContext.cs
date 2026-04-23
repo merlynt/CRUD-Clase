@@ -16,5 +16,17 @@ namespace appWeb2.Data
 
         public DbSet<DetalleCompra> DetallesCompra { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<VideoJuego>()
+                .Property(v => v.precio)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<VideoJuego>()
+                .Property(v => v.porcentajeDescuento)
+                .HasColumnType("decimal(5,2)");
+        }
     }
 }

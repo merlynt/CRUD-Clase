@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using appWeb2.Data;
 using appWeb2.Filters;
 using appWeb2.Models;
@@ -207,8 +208,10 @@ namespace appWeb2.Controllers
 
                     if (hashBytes.SequenceEqual(user.contrasena))
                     {
-                        HttpContext.Session.SetString("usuario", user.nombre);
-    
+                        //HttpContext.Session.SetString("usuario", user.nombre);
+                        string jsonUsuario = JsonSerializer.Serialize(user);
+                        HttpContext.Session.SetString("usuario", jsonUsuario);
+
                         return RedirectToAction("Index", "Home");
                     }
                     

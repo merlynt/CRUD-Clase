@@ -1,4 +1,5 @@
-﻿
+﻿@using System.Security.Claims
+
 @{
     ViewData["Title"] = "Home Page";
     Layout = "~/Views/Shared/_Layout1.cshtml";
@@ -203,17 +204,33 @@
         function renderizarBotonPaypal(videoJuegoId, contenedorId) {
             paypal.Buttons({
                 createOrder: async (data, actions) => {
-                    const response = await fetch('/api/Checkout/create-order', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            videoJuegoId: videoJuegoId
-                        })
-                    });
+                    try {
+                        const response = await fetch('/api/Checkout/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ videoJuegoId: videoJuegoId })
+                        });
 
-                    const order = await response.json();
-                    return order.id;
-                },
+                        if (response.status === 401) {
+                             alert("Su sesión ha expirado. Por favor, inicie sesión nuevamente.");
+                            window.location.href = "/Account/Login";
+                            return;
+                        }
+                
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Error en el servidor (${response.status}): ${errorText}`);
+                        }
+               
+                        const order = await response.json();
+                        return order.id;
+
+                    } catch (err) {
+                
+                        console.error("Fallo crítico en la creación de la orden:", err);
+                        alert("No se pudo conectar con el servidor de pagos. Intente más tarde.");
+                    }
+        },
 
                 onApprove: async (data, actions) => {
                     const response = await fetch('/api/Checkout/capture-order', {
@@ -221,8 +238,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             orderId: data.orderID,
-                            videoJuegoId: videoJuegoId,
-                            usuarioId: 8 
+                            videoJuegoId: parseInt(videoJuegoId),
                         })
                     });
 
@@ -230,7 +246,9 @@
                         alert("¡Compra realizada con éxito!");
                         window.location.reload();
                     } else {
-                        alert("Hubo un error al registrar la compra.");
+                        const errorText = await response.text();
+                        alert("Fallo la compra: " + errorText);
+                        console.error("Detalles del servidor:", errorText);
                     }
                 },
 

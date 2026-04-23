@@ -1,8 +1,10 @@
 ﻿using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using appWeb2.Data;
 using appWeb2.DTOs;
+using appWeb2.Filters;
 using appWeb2.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,7 @@ namespace appWeb2.Controllers
         }
 
         [HttpPost("create-order")]
+        [SessionAuthorize]
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequest request)
         {
             var juego = await _context.VideoJuegos.FindAsync(request.VideoJuegoId);
@@ -64,8 +67,32 @@ namespace appWeb2.Controllers
 
 
         [HttpPost("capture-order")]
+        [SessionAuthorize]
         public async Task<IActionResult> CaptureOrder([FromBody] CaptureRequest request)
         {
+            var usuarioJson = HttpContext.Session.GetString("usuario");
+
+            if (string.IsNullOrEmpty(usuarioJson))
+            {
+                return Unauthorized(new { mensaje = "Sesión no válida" });
+            }
+
+            Usuario usuarioLogueado;
+            try
+            {
+               
+                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                usuarioLogueado = JsonSerializer.Deserialize<Usuario>(usuarioJson, opciones);
+            }
+            catch (JsonException)
+            {
+              
+                return BadRequest("El usuario en sesión no tiene formato JSON. Cierra sesión y vuelve a entrar.");
+            }
+            if (usuarioLogueado == null) return Unauthorized(new { mensaje = "Error al leer los datos del usuario." });
+    
+            var idRealDelUsuario = usuarioLogueado.id;
+
             var token = await GetPayPalAccessToken();
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -78,33 +105,49 @@ namespace appWeb2.Controllers
             }
 
             var juego = await _context.VideoJuegos.FindAsync(request.VideoJuegoId);
+            if (juego == null) return NotFound("Videojuego no encontrado.");
 
-            var nuevaCompra = new Compra
+            decimal porcentajeDcto = juego.porcentajeDescuento ?? 0;
+            decimal precioFinal = juego.precio * (1 - porcentajeDcto);
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                UsuarioId = request.UsuarioId,
-                fechaCompra = DateTime.Now
-            };
+                var nuevaCompra = new Compra
+                {
+                    UsuarioId = idRealDelUsuario, 
+                    fechaCompra = DateTime.Now
+                };
 
-            _context.Compras.Add(nuevaCompra);
-            await _context.SaveChangesAsync(); 
+                _context.Compras.Add(nuevaCompra);
+                await _context.SaveChangesAsync();
 
-            var detalle = new DetalleCompra
+                var detalle = new DetalleCompra
+                {
+                    idCompra = nuevaCompra.id,
+                    VideoJuegosId = juego.id,
+                    total = precioFinal,
+                    fechaHoraTransaccion = DateTime.Now,
+                    cantidad = 1,
+                    estadoCompra = "Aprobado",
+                    codigoTransaccion = request.OrderId
+                };
+
+                _context.DetallesCompra.Add(detalle);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Ok(new { mensaje = "Compra exitosa y guardada en BD" });
+            }
+            catch (Exception ex)
             {
-                idCompra = nuevaCompra.id,
-                VideoJuegosId = juego.id,
-                total = juego.precio,
-                fechaHoraTransaccion = DateTime.Now,
-                cantidad = 1,
-                estadoCompra = "Aprobado",
-                codigoTransaccion = request.OrderId
-            };
-
-            _context.DetallesCompra.Add(detalle);
-            await _context.SaveChangesAsync(); 
-
-            return Ok(new { mensaje = "Compra exitosa y guardada en BD" });
+                await transaction.RollbackAsync();
+                string errorReal = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, new { mensaje = $"Error en BD: {errorReal}" });
+            }
         }
-
         private async Task<string> GetPayPalAccessToken()
         {
             var clientId = _config["PayPal:ClientId"];

@@ -11,10 +11,22 @@ namespace appWeb2.Filters
 
             if (usuario == null)
             {
-                context.Result = new RedirectToActionResult("Login", "Account", null);
-            }
+                var isApiRequest = context.HttpContext.Request.Path.StartsWithSegments("/api");
 
-           
+                if (isApiRequest)
+                {
+                    context.Result = new JsonResult(new
+                    {
+                        error = "Sesión expirada",
+                        message = "Debe iniciar sesión para realizar esta acción."
+                    })
+                    { StatusCode = 401 };
+                }
+                else
+                {
+                    context.Result = new RedirectToActionResult("Login", "Account", null);
+                }
+            }
         }
     }
 }
