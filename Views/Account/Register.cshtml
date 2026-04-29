@@ -1,0 +1,113 @@
+﻿@model appWeb2.Models.RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Registrarse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0; /* Un poco de padding por si la pantalla es pequeña */
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px; /* Un poquito más ancho para que quepan bien los 4 campos */
+            border-radius: 20px;
+            padding: 30px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-accent {
+            background: #2a5298;
+            color: white;
+            border-radius: 10px;
+        }
+
+            .btn-accent:hover {
+                background: #1e3c72;
+                color: white;
+            }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .title {
+            font-weight: bold;
+            color: #2a5298;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+
+        <h3 class="text-center mb-4 title">Crear Cuenta</h3>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger text-center">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label">Nombre Completo</label>
+                <input asp-for="nombre" class="form-control" autocomplete="off" placeholder="Juan Pérez" />
+                <span asp-validation-for="nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correo Electrónico</label>
+                <input asp-for="correo" class="form-control" autocomplete="off" placeholder="ejemplo@gmail.com" />
+                <span asp-validation-for="correo" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input asp-for="contrasena" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="contrasena" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Verificar Contraseña</label>
+                    <input asp-for="verificarContrasena" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="verificarContrasena" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent w-100 py-2 mt-2">
+                Registrarse
+            </button>
+
+            <div class="text-center mt-3">
+                <a asp-action="Login" class="text-decoration-none small" style="color: #2a5298;">
+                    ¿Ya tienes una cuenta? Inicia Sesión
+                </a>
+            </div>
+        </form>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+﻿@model IEnumerable<appWeb2.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+            .table-custom thead {
+                background-color: #1e3c72;
+                color: white;
+            }
+
+            .table-custom th {
+                padding: 15px;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.85rem;
+                border: none;
+            }
+
+            .table-custom td {
+                padding: 12px 15px;
+                vertical-align: middle;
+                border-bottom: 1px solid #edf2f7;
+                color: #4a5568;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: #f8fafc;
+            }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+            color: white;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-edit {
+            background-color: #3b82f6;
+        }
+
+        .btn-details {
+            background-color: #64748b;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white;
+            opacity: 0.9;
+        }
+
+        .actions-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="welcome-box">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Gestión de Usuarios</h2>
+            <p class="text-muted">Administra las cuentas y accesos a la plataforma</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary px-4 shadow-sm" style="border-radius: 10px;">
+            <i class="fas fa-user-plus me-2"></i> Nuevo Usuario
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Correo Electrónico</th>
+                    <th>Rol</th>
+                    <th>Fecha Registro</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="user-avatar">
+                                    @(string.IsNullOrEmpty(usuario.nombre) ? "?" : usuario.nombre.Substring(0, 1).ToUpper())
+                                </div>
+                                <div>
+                                    <div class="fw-bold">@usuario.nombre</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:@usuario.correo" class="text-decoration-none text-secondary">
+                                @usuario.correo
+                            </a>
+                        </td>
+                        <td>
+                            @if (usuario.idRol == 1)
+                            {
+                                <span class="badge bg-dark border">
+                                    <i class="fas fa-shield-alt me-1"></i> @(usuario.rol?.rol ?? "Admin")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info text-dark border">
+                                    <i class="fas fa-user me-1"></i> @(usuario.rol?.rol ?? "Cliente")
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            @(usuario.fechaRegistro.HasValue? usuario.fechaRegistro.Value.ToString("dd/MM/yyyy") : "N/A")
+                        </td>
+                        <td>
+                            <div class="actions-container justify-content-center">
+                                <a asp-action="Edit" asp-route-id="@usuario.id" class="btn-action btn-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@usuario.id" class="btn-action btn-details" title="Ver Compras">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@usuario.id" class="btn-action btn-delete" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

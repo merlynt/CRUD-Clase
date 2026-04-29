@@ -67,7 +67,7 @@ namespace appWeb2.Controllers
 
 
         [HttpPost("capture-order")]
-        [SessionAuthorize]
+        [SessionAuthorize(2)]
         public async Task<IActionResult> CaptureOrder([FromBody] CaptureRequest request)
         {
             var usuarioJson = HttpContext.Session.GetString("usuario");

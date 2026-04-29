@@ -233,23 +233,30 @@
         },
 
                 onApprove: async (data, actions) => {
-                    const response = await fetch('/api/Checkout/capture-order', {
+                    try{
+                        const response = await fetch('/api/Checkout/capture-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             orderId: data.orderID,
                             videoJuegoId: parseInt(videoJuegoId),
                         })
-                    });
+                        });
 
-                    if (response.ok) {
-                        alert("¡Compra realizada con éxito!");
-                        window.location.reload();
-                    } else {
-                        const errorText = await response.text();
-                        alert("Fallo la compra: " + errorText);
-                        console.error("Detalles del servidor:", errorText);
+                        if (response.ok) {
+                            alert("¡Compra realizada con éxito!");
+                            //window.location.reload();
+                        } else {
+                            const errorText = await response.text();
+                            alert("Fallo la compra: " + errorText);
+                            console.error("Detalles del servidor:", errorText);
+                        }
+                    } catch (err) {
+                
+                        console.error("Error crítico en onApprove:", err);
+                        alert("Ocurrió un error inesperado al procesar tu pago.");
                     }
+                    
                 },
 
                 onError: (err) => {

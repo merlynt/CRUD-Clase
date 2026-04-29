@@ -25,6 +25,16 @@ namespace appWeb2.Controllers
             ViewBag.CategoriasSelect = new SelectList(data, "id", "categoria");
         }
         [HttpGet]
+        public IActionResult JuegosVentas()
+        {
+
+            return View();
+        }
+        public IActionResult Register()
+        {
+
+            return View();
+        }
 
         public IActionResult Login()
         {
@@ -32,22 +42,26 @@ namespace appWeb2.Controllers
             return View();
         }
 
-        [SessionAuthorize]
+        [SessionAuthorize(1)]
         public IActionResult Dashboard()
         {
-            //var data = (from v in _context.VideoJuegos 
-            //            join c in _context.Categorias
-            //            on v.idCategoria equals c.id
-            //            group v by c.categoria into g
-            //            select new
-            //            {
-            //                Categoria = g.Key,
-            //                Total = g.Count()
-            //            }).ToList();
-            //ViewBag.Categorias = data.Select(x => x.Categoria).ToList();
-            //ViewBag.Totales = data.Select(x => x.Total).ToList();
-            ObtenerCategorias();
-            return View();
+             ObtenerCategorias();
+            string jsonUsuario = HttpContext.Session.GetString("usuario");
+            if (string.IsNullOrEmpty(jsonUsuario))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = JsonSerializer.Deserialize<Usuario>(jsonUsuario);
+
+            if (user.rol.id != 1)
+            {
+                return RedirectToAction("JuegosVentas");
+            }
+            else
+            {
+                return View();
+            }
         }
 
 
@@ -139,7 +153,7 @@ namespace appWeb2.Controllers
             return Json(data);
         }
 
-        [SessionAuthorize]
+        [SessionAuthorize(1)]
         public async Task<IActionResult> DetalleVentas(DateTime? desde, DateTime? hasta, int pagina = 1)
         {
             int paginador = 10;
@@ -193,6 +207,7 @@ namespace appWeb2.Controllers
         {
            
             var user = _context.Usuarios
+            .Include(u => u.rol)
             .FirstOrDefault(u => u.correo == model.correo);
 
             if(user != null)
@@ -212,11 +227,20 @@ namespace appWeb2.Controllers
 
                     if (hashBytes.SequenceEqual(user.contrasena))
                     {
+
                         //HttpContext.Session.SetString("usuario", user.nombre);
                         string jsonUsuario = JsonSerializer.Serialize(user);
                         HttpContext.Session.SetString("usuario", jsonUsuario);
 
-                        return RedirectToAction("Index", "Home");
+                        if(user.rol.id == 1)
+                        {
+                            return RedirectToAction("Dashboard", "Account");
+                        }else if(user.rol.id == 2)
+                        {
+
+                            return RedirectToAction("Index", "Home");
+
+                        }
                     }
                     
 
@@ -227,6 +251,62 @@ namespace appWeb2.Controllers
             return View("Login");
            
 
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var usuarioExistente = _context.Usuarios
+                .FirstOrDefault(u => u.correo == model.correo);
+
+            if (usuarioExistente != null)
+            {
+                ViewBag.Error = "Este correo electrónico ya está registrado.";
+                return View(model);
+            }
+
+            string nuevoSalt = Guid.NewGuid().ToString("N").Substring(0, 10);
+
+            string saltedContrasena = nuevoSalt + model.contrasena;
+
+            byte[] hashBytes;
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] inputBytes = Encoding.Unicode.GetBytes(saltedContrasena);
+                hashBytes = sha256.ComputeHash(inputBytes);
+            }
+
+            var nuevoUsuario = new Usuario
+            {
+                nombre = model.nombre,
+                correo = model.correo,
+                contrasena = hashBytes, 
+                salt = nuevoSalt,       
+                idRol = 2,            
+                fechaRegistro = DateTime.Now
+            };
+
+            try
+            {
+                _context.Usuarios.Add(nuevoUsuario);
+                _context.SaveChanges();
+
+                TempData["MensajeExito"] = "Cuenta creada exitosamente. Por favor, inicia sesión.";
+
+                return RedirectToAction("Login", "Account");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al registrar: " + ex.Message);
+                ViewBag.Error = "Ocurrió un error al crear la cuenta. Inténtalo de nuevo.";
+                return View(model);
+            }
         }
 
         public IActionResult Logout()

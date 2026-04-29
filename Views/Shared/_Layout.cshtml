@@ -158,16 +158,38 @@
                         Ventas
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuario" ? "active" : "")"
+                       asp-controller="Usuario" asp-action="Index">
+                        Usuarios
+                    </a>
+                </li>
             </ul>
 
             <div class="ms-auto d-flex align-items-center gap-3">
-                <span class="user-info">
-                    @usuarioLogueado.nombre
-                </span>
 
-                <a asp-controller="Account" asp-action="Logout" class="btn btn-light btn-sm btn-logout">
-                    Cerrar Sesión
-                </a>
+                @* Validamos si el objeto NO es nulo antes de sacar el nombre *@
+                @if (usuarioLogueado != null)
+                {
+                    <span class="user-info">
+                        @usuarioLogueado.nombre
+                    </span>
+
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-light btn-sm btn-logout">
+                        Cerrar Sesión
+                    </a>
+                }
+                else
+                {
+                    @* Si es nulo (visitante / queriendo registrarse), le mostramos opciones públicas *@
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-sm">
+                        Iniciar Sesión
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-sm ms-2">
+                        Registrarse
+                    </a>
+                }
+
             </div>
         </div>
     </nav>
