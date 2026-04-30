@@ -154,7 +154,7 @@ namespace appWeb2.Controllers
         }
 
         [SessionAuthorize(1)]
-        public async Task<IActionResult> DetalleVentas(DateTime? desde, DateTime? hasta, int pagina = 1)
+        public async Task<IActionResult> DetalleVentas(DateTime? desde, DateTime? hasta, string? cliente, string? videojuego, int pagina = 1)
         {
             int paginador = 10;
 
@@ -174,6 +174,16 @@ namespace appWeb2.Controllers
                 query = query.Where(d => d.fechaHoraTransaccion <= hasta.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(cliente))
+            {
+                query = query.Where(d => d.Compra.Usuario.nombre.Contains(cliente));
+            }
+
+            if (!string.IsNullOrWhiteSpace(videojuego))
+            {
+                query = query.Where(d => d.VideoJuego.titulo.Contains(videojuego));
+            }
+
             var totalregistros = await query.CountAsync();
 
             var datos = await query
@@ -182,20 +192,23 @@ namespace appWeb2.Controllers
                 .Take(paginador)
                 .Select(d => new VentasViewModel
                 {
-                  idCompra = d.idCompra,
-                  NombreUsuario = d.Compra.Usuario.nombre,
-                  NombreVideoJuego = d.VideoJuego.titulo,
-                  cantidad = d.cantidad,
-                  total = d.total,
-                  estadoCompra = d.estadoCompra,
-                  fechaHoraTransaccion = d.fechaHoraTransaccion,
-                  codigoTransaccion = d.codigoTransaccion
+                    idCompra = d.idCompra,
+                    NombreUsuario = d.Compra.Usuario.nombre,
+                    NombreVideoJuego = d.VideoJuego.titulo,
+                    cantidad = d.cantidad,
+                    total = d.total,
+                    estadoCompra = d.estadoCompra,
+                    fechaHoraTransaccion = d.fechaHoraTransaccion,
+                    codigoTransaccion = d.codigoTransaccion
                 }).ToListAsync();
 
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalregistros / paginador);
             ViewBag.PaginaActual = pagina;
+
             ViewBag.Desde = desde;
             ViewBag.Hasta = hasta;
+            ViewBag.Cliente = cliente;
+            ViewBag.Videojuego = videojuego;
 
             return View(datos);
         }
@@ -313,6 +326,122 @@ namespace appWeb2.Controllers
         {
             HttpContext.Session.Clear(); 
             return RedirectToAction("Login", "Account");
+        }
+
+        public async Task<IActionResult> MisCompras(string buscar, DateTime? desde, DateTime? hasta)
+        {
+            var usuarioJson = HttpContext.Session.GetString("usuario");
+            if (string.IsNullOrEmpty(usuarioJson)) return RedirectToAction("Login", "Account");
+
+            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var usuarioLogueado = JsonSerializer.Deserialize<Usuario>(usuarioJson, opciones);
+
+            var query = _context.DetallesCompra
+                .Include(d => d.VideoJuego) 
+                .Include(d => d.Compra)    
+                .Where(d => d.Compra.UsuarioId == usuarioLogueado.id);
+
+            // 3. Filtros
+            if (!string.IsNullOrEmpty(buscar))
+                query = query.Where(d => d.VideoJuego.titulo.Contains(buscar));
+
+            if (desde.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion.Date >= desde.Value.Date);
+
+            if (hasta.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion.Date <= hasta.Value.Date);
+
+            var misDetalles = await query.OrderByDescending(d => d.fechaHoraTransaccion).ToListAsync();
+
+            ViewBag.TotalJuegos = misDetalles.Sum(d => d.cantidad);
+            ViewBag.TotalGastado = misDetalles.Sum(d => d.total);
+
+            ViewBag.GastadoMes = misDetalles
+                .Where(d => d.fechaHoraTransaccion.Month == DateTime.Now.Month && d.fechaHoraTransaccion.Year == DateTime.Now.Year)
+                .Sum(d => d.total);
+
+            return View(misDetalles);
+        }
+
+        [HttpGet]
+        public IActionResult Gestionar()
+        {
+            var usuarioJson = HttpContext.Session.GetString("usuario");
+            if (string.IsNullOrEmpty(usuarioJson)) return RedirectToAction("Login", "Account");
+
+            var usuario = JsonSerializer.Deserialize<Usuario>(usuarioJson);
+
+            var model = new GestionCuentaViewModel
+            {
+                Nombre = usuario.nombre
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Gestionar(GestionCuentaViewModel model)
+        {
+            var usuarioJson = HttpContext.Session.GetString("usuario");
+            if (string.IsNullOrEmpty(usuarioJson)) return RedirectToAction("Login", "Account");
+
+            var usuarioSesion = JsonSerializer.Deserialize<Usuario>(usuarioJson);
+
+            var usuarioDb = _context.Usuarios.FirstOrDefault(u => u.id == usuarioSesion.id);
+            if (usuarioDb == null) return RedirectToAction("Login", "Account");
+
+            usuarioDb.nombre = model.Nombre;
+
+            if (!string.IsNullOrEmpty(model.NuevaPassword))
+            {
+
+                if (string.IsNullOrEmpty(model.PasswordActual))
+                {
+                    ViewBag.Error = "Debes ingresar tu contraseña actual para poder cambiarla.";
+                    return View(model);
+                }
+
+                string saltedActual = usuarioDb.salt + model.PasswordActual;
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] inputBytesActual = Encoding.Unicode.GetBytes(saltedActual);
+                    byte[] hashActual = sha256.ComputeHash(inputBytesActual);
+
+                    if (!hashActual.SequenceEqual(usuarioDb.contrasena))
+                    {
+                        ViewBag.Error = "La contraseña actual es incorrecta.";
+                        return View(model);
+                    }
+                }
+
+                if (model.NuevaPassword != model.ConfirmarPassword)
+                {
+                    ViewBag.Error = "Las nuevas contraseñas no coinciden.";
+                    return View(model);
+                }
+
+                string nuevoSalt = Guid.NewGuid().ToString("N").Substring(0, 10);
+                string saltedNueva = nuevoSalt + model.NuevaPassword;
+
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] inputBytesNueva = Encoding.Unicode.GetBytes(saltedNueva);
+                    byte[] hashNueva = sha256.ComputeHash(inputBytesNueva);
+
+                    usuarioDb.salt = nuevoSalt;
+                    usuarioDb.contrasena = hashNueva;
+                }
+            }
+
+            _context.Usuarios.Update(usuarioDb);
+            _context.SaveChanges();
+
+            string nuevoJson = JsonSerializer.Serialize(usuarioDb);
+            HttpContext.Session.SetString("usuario", nuevoJson);
+
+            ViewBag.MensajeExito = "Tu cuenta se ha actualizado correctamente.";
+            return View(model);
         }
     }
 }

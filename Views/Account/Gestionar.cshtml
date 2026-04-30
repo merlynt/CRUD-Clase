@@ -1,0 +1,102 @@
+﻿@model appWeb2.Models.GestionCuentaViewModel
+
+@{
+    ViewData["Title"] = "Mi Cuenta";
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card bg-secondary text-white p-4 shadow-lg border-0 rounded-3">
+                <h2 class="text-warning fw-bold text-center mb-4">
+                    <i class="fa-solid fa-user-gear me-2"></i> Gestión de Cuenta
+                </h2>
+                <hr class="border-warning opacity-50" />
+
+                @if (ViewBag.MensajeExito != null)
+                {
+                    <div class="alert alert-success bg-success text-white border-0 fw-bold shadow-sm">
+                        <i class="fa-solid fa-circle-check me-2"></i> @ViewBag.MensajeExito
+                    </div>
+                }
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger bg-danger text-white border-0 fw-bold shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i> @ViewBag.Error
+                    </div>
+                }
+
+                <form asp-action="Gestionar" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-warning fw-bold mb-3"></div>
+
+                    <h5 class="text-light mb-3 mt-2">Datos de Perfil</h5>
+                    <div class="mb-4">
+                        <label asp-for="Nombre" class="form-label fw-bold">Nombre de Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-warning border-secondary">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                            <input asp-for="Nombre" class="form-control bg-dark text-light border-secondary" placeholder="Tu nombre" required />
+                        </div>
+                        <span asp-validation-for="Nombre" class="text-warning small"></span>
+                    </div>
+
+                    <hr class="border-secondary mb-4" />
+
+                    <h5 class="text-warning mb-3">Cambiar Contraseña</h5>
+                    <p class="small text-light opacity-75 mb-4">
+                        <i class="fa-solid fa-circle-info text-warning"></i> Deja estos campos en blanco si solo quieres cambiar tu nombre.
+                    </p>
+
+                    <div class="mb-3">
+                        <label asp-for="PasswordActual" class="form-label fw-bold">Contraseña Actual</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-warning border-secondary">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input asp-for="PasswordActual" type="password" class="form-control bg-dark text-light border-secondary" placeholder="Obligatorio para cambiar la clave" />
+                        </div>
+                        <span asp-validation-for="PasswordActual" class="text-warning small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NuevaPassword" class="form-label fw-bold">Nueva Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-warning border-secondary">
+                                <i class="fa-solid fa-key"></i>
+                            </span>
+                            <input asp-for="NuevaPassword" type="password" class="form-control bg-dark text-light border-secondary" placeholder="Nueva contraseña" />
+                        </div>
+                        <span asp-validation-for="NuevaPassword" class="text-warning small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ConfirmarPassword" class="form-label fw-bold">Confirmar Nueva Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-warning border-secondary">
+                                <i class="fa-solid fa-check-double"></i>
+                            </span>
+                            <input asp-for="ConfirmarPassword" type="password" class="form-control bg-dark text-light border-secondary" placeholder="Repite la nueva contraseña" />
+                        </div>
+                        <span asp-validation-for="ConfirmarPassword" class="text-warning small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 fw-bold btn-lg mt-3 shadow-sm text-dark hover-effect">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Cambios
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -6,10 +6,10 @@
 }
 
 @model IEnumerable<appWeb2.Models.VideoJuego>
-
+<section class="banner text-center text-white">
+</section>
 <div class="container mt-5">
     <div class="row text-center mb-5">
-
         <div class="col-md-3 mb-3">
             <div class="dropdown" style="position: relative;">
                 <div class="feature-card" role="button" data-bs-toggle="dropdown" aria-expanded="false"
@@ -182,7 +182,73 @@
                 </div>
             </div>
         }
-    </div>
+    </div> 
+    @if (ViewBag.TotalPaginas > 1)
+    {
+        <style>
+            /* Estilos personalizados para la paginación Gamer */
+            .pagination-custom .page-item {
+                margin: 0 4px; /* Separación entre los botones */
+            }
+
+            .pagination-custom .page-link {
+                background-color: #002a33; /* Fondo oscuro de tu diseño */
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px !important; /* Bordes redondeados */
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+                .pagination-custom .page-link:hover {
+                    background-color: #001a20; /* Más oscuro al pasar el mouse */
+                    color: #ffc107; /* Texto amarillo */
+                    border-color: #ffc107;
+                    box-shadow: 0 0 8px rgba(255, 193, 7, 0.3); /* Brillo sutil */
+                }
+
+            .pagination-custom .page-item.active .page-link {
+                background-color: #ffc107; /* Fondo amarillo para la página actual */
+                color: #000; /* Texto negro para resaltar */
+                border-color: #ffc107;
+                font-weight: bold;
+            }
+
+            .pagination-custom .page-item.disabled .page-link {
+                background-color: rgba(0, 42, 51, 0.4);
+                color: #6c757d;
+                border-color: transparent;
+                cursor: not-allowed;
+            }
+        </style>
+
+        <div class="d-flex justify-content-center mt-5 mb-5">
+            <ul class="pagination pagination-lg shadow-sm pagination-custom">
+
+                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link px-4" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                        <i class="fa-solid fa-chevron-left me-1"></i> Anterior
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PaginaActual == ViewBag.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link px-4" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                        Siguiente <i class="fa-solid fa-chevron-right ms-1"></i>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    }
 </div>
 @section Scripts {
     <script src="https://www.paypal.com/sdk/js?client-id=AbHZfgDm_PVlYsDXdPl144asu0P3pGPCDuZPmblOsLLJZ4K--87fx1KduQUQVbaEIlrZi2eaDGE_5dGz&currency=USD"></script>

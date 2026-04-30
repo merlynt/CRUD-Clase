@@ -16,7 +16,7 @@ namespace appWeb2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             ViewBag.CategoriasDisponibles = await _context.VideoJuegos
                                             .Select(j => j.categoria)
@@ -24,7 +24,20 @@ namespace appWeb2.Controllers
                                             .OrderBy(c => c)
                                             .ToListAsync();
 
-            var juegos = await _context.VideoJuegos.ToListAsync();
+            int cantidadPorPagina = 8;
+
+            int totalJuegos = await _context.VideoJuegos.CountAsync();
+
+            int totalPaginas = (int)Math.Ceiling(totalJuegos / (double)cantidadPorPagina);
+
+            var juegos = await _context.VideoJuegos
+                                .Skip((pagina - 1) * cantidadPorPagina)
+                                .Take(cantidadPorPagina)
+                                .ToListAsync();
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
             return View(juegos);
         }
 
@@ -43,7 +56,11 @@ namespace appWeb2.Controllers
         
             return RedirectToAction("Index", "VideoJuegos");
         }
+        public IActionResult MisCompras()
+        {
 
+            return RedirectToAction("MisCompras", "Account");
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

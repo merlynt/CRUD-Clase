@@ -1,4 +1,4 @@
-/*INICIO*/
+
 html, body {
     height: 100%;
 }
@@ -46,18 +46,18 @@ body {
 }
 
 .banner {
-    background: url('/img/banner.png');
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/img/banner.png');
     background-size: cover;
-    background-position: center;
     background-position: center top;
-    height: 80vh;
+    height: 87vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 300px 0;
+    text-align: center;
+    color: white;
+    margin-top: 0;
 }
-
-
 .game-card {
     border-radius: 15px;
     overflow: hidden;
@@ -72,7 +72,7 @@ body {
     }
 
 
-.game-img {
+.game-img{
     height: 220px;
     object-fit: cover;
 }
@@ -133,3 +133,8 @@ body {
         box-shadow: 0px 0px 15px #d55829;
         background-color: #00416c;
     }
+
+.dropdown-custom-hover:hover {
+    background-color: #495057 !important; 
+    color: #ffc107 !important; +
+}

@@ -1,4 +1,18 @@
-﻿<!DOCTYPE html>
+﻿@using System.Text.Json
+@using appWeb2.Models
+@{
+    // Leemos la sesión del usuario como lo tienes en tu admin
+    var usuarioJson = Context.Session.GetString("usuario");
+    Usuario usuarioLogueado = null;
+
+    if (!string.IsNullOrEmpty(usuarioJson))
+    {
+        var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        usuarioLogueado = JsonSerializer.Deserialize<Usuario>(usuarioJson, opciones);
+    }
+}
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -29,31 +43,62 @@
 
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">home</a>
                         </li>
-
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Contacts">Contactos</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Contacts">contacto</a>
                         </li>
-
+                        
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Lo Nuevo</a>
-                        </li>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">lo nuevo</a>
+                        </li>               
                     </ul>
 
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">
-                                Iniciar Sesión
-                            </a>
-                        </li>
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @if (usuarioLogueado != null)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light fw-bold" href="#" id="menuUsuario" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user me-1 text-warning"></i> @usuarioLogueado.nombre
+                                </a>
 
-                        <li class="nav-item">
-                            <a class="btn btn-accent ms-2"
-                               asp-controller="Account" asp-action="Register">
-                                Registrarse
-                            </a>
-                        </li>
+                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary shadow" aria-labelledby="menuUsuario">
+
+                                    <li>
+                                        <a class="dropdown-item text-light dropdown-custom-hover" asp-controller="Account" asp-action="Gestionar">
+                                            <i class="fa-solid fa-user-gear me-2 text-warning"></i> Mi Cuenta
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item text-light dropdown-custom-hover" asp-controller="Account" asp-action="MisCompras">
+                                            <i class="fa-solid fa-bag-shopping me-2 text-warning"></i> Mis Compras
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider border-secondary"></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger fw-bold dropdown-custom-hover" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    Iniciar Sesión
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-warning ms-2 text-dark fw-bold" asp-controller="Account" asp-action="Register">
+                                    Registrarse
+                                </a>
+                            </li>
+                        }
                     </ul>
 
                 </div>
@@ -61,23 +106,15 @@
         </nav>
     </header>
 
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <section class="banner text-center text-white">
-    </section>
-
-    <div class="container mt-5">
-        <main role="main">
-            @RenderBody()
-        </main>
-    </div>
-
-
-    <footer class="footer-custom text-center py-3 mt-5">
+    <footer class="footer-custom text-center py-3 mt-5 text-white">
         <div class="container">
             &copy; 2026 - GameStore | Todos los derechos reservados
         </div>
     </footer>
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

@@ -168,7 +168,6 @@
 
             <div class="ms-auto d-flex align-items-center gap-3">
 
-                @* Validamos si el objeto NO es nulo antes de sacar el nombre *@
                 @if (usuarioLogueado != null)
                 {
                     <span class="user-info">
@@ -181,7 +180,6 @@
                 }
                 else
                 {
-                    @* Si es nulo (visitante / queriendo registrarse), le mostramos opciones públicas *@
                     <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-sm">
                         Iniciar Sesión
                     </a>
