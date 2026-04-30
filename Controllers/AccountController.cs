@@ -7,6 +7,7 @@ using appWeb2.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 
 namespace appWeb2.Controllers
 {
@@ -212,6 +213,49 @@ namespace appWeb2.Controllers
 
             return View(datos);
         }
+        public async Task<IActionResult> ExportarPDF(DateTime? desde, DateTime? hasta)
+        {
+          
+            var query = _context.DetallesCompra
+                .Include(d => d.Compra)
+                    .ThenInclude(c => c.Usuario)
+                .Include(d => d.VideoJuego)
+                .AsQueryable();
+
+            if (desde.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion >= desde);
+
+            if (hasta.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion <= hasta);
+
+            var datos = await query
+                .OrderByDescending(d => d.fechaHoraTransaccion)
+                .Select(d => new VentasViewModel 
+                {
+                    idCompra = d.idCompra,
+                    VideoJuegosId = d.VideoJuegosId,
+                    NombreVideoJuego = d.VideoJuego.titulo,
+                    NombreUsuario = d.Compra.Usuario.nombre,
+                    cantidad = d.cantidad,
+                    total = d.total,
+                    estadoCompra = d.estadoCompra,
+                    fechaHoraTransaccion = d.fechaHoraTransaccion,
+                    codigoTransaccion = d.codigoTransaccion
+
+                }).ToListAsync();
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+            
+            string nombrePdf = $"Reporte_Ventas_{timestamp}.pdf";
+
+            return new ViewAsPdf("PdfVentas", datos)
+            {
+                FileName = nombrePdf,
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                CustomSwitches = "--footer-right \"Página [page] de [topage]\" --footer-font-size \"9\" --footer-spacing \"5\" --footer-font-name \"Arial\""
+            };
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -327,6 +371,7 @@ namespace appWeb2.Controllers
             HttpContext.Session.Clear(); 
             return RedirectToAction("Login", "Account");
         }
+        [SessionAuthorize(2)]
 
         public async Task<IActionResult> MisCompras(string buscar, DateTime? desde, DateTime? hasta)
         {
@@ -341,7 +386,6 @@ namespace appWeb2.Controllers
                 .Include(d => d.Compra)    
                 .Where(d => d.Compra.UsuarioId == usuarioLogueado.id);
 
-            // 3. Filtros
             if (!string.IsNullOrEmpty(buscar))
                 query = query.Where(d => d.VideoJuego.titulo.Contains(buscar));
 
@@ -361,6 +405,53 @@ namespace appWeb2.Controllers
                 .Sum(d => d.total);
 
             return View(misDetalles);
+        }
+        public async Task<IActionResult> ExportarPDFMisCompras(string buscar, DateTime? desde, DateTime? hasta)
+        {
+            var usuarioJson = HttpContext.Session.GetString("usuario");
+            if (string.IsNullOrEmpty(usuarioJson)) return RedirectToAction("Login", "Account");
+
+            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var usuarioLogueado = JsonSerializer.Deserialize<Usuario>(usuarioJson, opciones);
+
+            var query = _context.DetallesCompra
+                .Include(d => d.VideoJuego)
+                .Include(d => d.Compra)
+                    .ThenInclude(c => c.Usuario)
+                .Where(d => d.Compra.UsuarioId == usuarioLogueado.id)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+                query = query.Where(d => d.VideoJuego.titulo.Contains(buscar));
+
+            if (desde.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion.Date >= desde.Value.Date);
+
+            if (hasta.HasValue)
+                query = query.Where(d => d.fechaHoraTransaccion.Date <= hasta.Value.Date);
+
+            var misDetalles = await query
+                .OrderByDescending(d => d.fechaHoraTransaccion)
+                .ToListAsync();
+
+            ViewBag.TotalGastado = misDetalles.Sum(d => d.total);
+            ViewBag.TotalJuegos = misDetalles.Sum(d => d.cantidad);
+            ViewBag.NombreUsuario = usuarioLogueado.nombre;
+
+           
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+           
+            string nombreLimpio = usuarioLogueado.nombre.Replace(" ", "");
+            string nombrePdf = $"MisCompras_{nombreLimpio}_{timestamp}.pdf";
+
+            
+            return new ViewAsPdf("PdfMisCompras", misDetalles)
+            {
+                FileName = nombrePdf,
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                CustomSwitches = "--footer-right \"Página [page] de [topage]\" --footer-font-size \"9\" --footer-spacing \"5\" --footer-font-name \"Arial\""
+            };
         }
 
         [HttpGet]

@@ -38,10 +38,23 @@
                                value="@ViewBag.Hasta?.ToString("yyyy-MM-dd")" style="width: 130px;" />
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-sm px-4 shadow-sm"
-                            style="background: #1e3c72; border: none; height: 31px;">
-                        Filtrar
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm px-4 shadow-sm"
+                                style="background: #1e3c72; border: none; height: 31px;">
+                            Filtrar
+                        </button>
+                        <a href="@Url.Action("ExportarPDF", "Account", new { 
+                               desde = Context.Request.Query["desde"].ToString(), 
+                               hasta = Context.Request.Query["hasta"].ToString() 
+                           })"
+                           class="btn btn-danger btn-sm px-4 shadow-sm"
+                           style="height: 31px; display: flex; align-items: center;"
+                           target="_blank">
+                            Exportar PDF
+                        </a>
+                        
+                    </div>
+
                 </form>
             </div>
         </div>

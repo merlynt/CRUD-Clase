@@ -1,0 +1,128 @@
+﻿@{
+    Layout = null;
+    string fechaInfo = "";
+
+    if (ViewBag.Desde != null || ViewBag.Hasta != null)
+    {
+        fechaInfo = $"Desde: {ViewBag.Desde.ToString("dd/MM/yyyy")} - Hasta: {ViewBag.Hasta.ToString("dd/MM/yyyy")}";
+    }
+    else
+    {
+        fechaInfo = "Todos los registros";
+       
+        
+    }
+}
+@model List<VentasViewModel>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .header-container {
+            border-bottom: 2px solid #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .logo {
+            max-height: 60px;
+        }
+
+        .report-title {
+            color: #1e3c72;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .date-range {
+            color: #555;
+            font-style: italic;
+        }
+
+        .table thead {
+            background-color: #1e3c72;
+            color: white;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(30, 60, 114, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 0;">
+            <tr>
+                <td style="text-align: left; vertical-align: middle; width: 50%; border: none;">
+                    <div style="font-family: 'Arial Black', sans-serif; font-size: 24px; font-weight: bold; color: #FFD700; background-color: #1e3c72; display: inline-block; padding: 5px 15px; border-radius: 5px; text-transform: uppercase;">
+                        GAMESTORE
+                    </div>
+                </td>
+
+                <td style="text-align: right; vertical-align: middle; width: 50%; border: none;">
+                    <h2 class="report-title" style="margin: 0; font-size: 20px;">Reporte Detallado de Ventas</h2>
+                    <p class="date-range" style="margin: 5px 0; font-size: 14px;">@fechaInfo</p>
+                    <small class="text-muted" style="font-size: 12px;">Generado el: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="table table-striped table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Videojuego</th>
+                <th class="text-center">Cant.</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Código de Transacción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@item.NombreUsuario</td>
+                    <td>@item.NombreVideoJuego</td>
+                    <td class="text-center">@item.cantidad</td>
+                    <td class="text-dark fw-bold">$@item.total.ToString("N2")</td>
+                    <td>
+                        <span class="badge border text-dark">@item.estadoCompra</span>
+                    </td>
+                    <td>@item.fechaHoraTransaccion.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style="font-family: monospace; font-size: 10px;">@item.codigoTransaccion</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row mt-4">
+        <div class="col-8"></div>
+        <div class="col-4">
+            <table class="table table-sm table-bordered">
+                <tr class="table-light">
+                    <th class="text-end">Total Ventas:</th>
+                    <td class="fw-bold text-end">$@Model.Sum(x => x.total).ToString("N2")</td>
+                </tr>
+                <tr class="table-light">
+                    <th class="text-end">Cant. Registros:</th>
+                    <td class="text-end">@Model.Count</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

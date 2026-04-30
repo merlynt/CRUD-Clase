@@ -124,7 +124,49 @@
             border-color: var(--accent-blue) !important;
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
         }
+    /* Estilo personalizado para el botón PDF */
+    .btn-pdf-gaming {
+        background: rgba(220, 53, 69, 0.1); /* Fondo rojo muy transparente */
+        color: #ff6b6b; /* Texto rojo brillante */
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
+        .btn-pdf-gaming:hover {
+            background: #dc3545;
+            color: #ffffff;
+            border-color: #dc3545;
+            box-shadow: 0 0 15px rgba(220, 53, 69, 0.5);
+            transform: translateY(-2px);
+        }
+    
+    .btn-gamestore {
+        background-color: var(--accent-yellow);
+        color: #0f172a; 
+        font-weight: 800;
+        text-transform: uppercase;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-gamestore:hover {
+            background-color: #e0a800;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+        }
     
 </style>
 <div class="library-section py-5">
@@ -175,10 +217,17 @@
                     <input type="date" name="hasta" value="@Context.Request.Query["hasta"]"
                            class="form-control form-control-gaming">
                 </div>
-                <div class="col-md-2 d-grid">
-                    <button type="submit" class="btn btn-primary fw-bold shadow-sm">
-                        <i class="fa-solid fa-filter me-2"></i>Filtrar
+                <div class="col-md-2 d-flex flex-column gap-2 justify-content-end">
+                    
+                    <button type="submit" class="btn btn-gamestore w-100 py-2 shadow-sm" style="font-size: 0.85rem;">
+                        <i class="fa-solid fa-filter me-1"></i> Filtrar
                     </button>
+
+                    
+                    <a href="@Url.Action("ExportarPDFMisCompras", new { buscar = Context.Request.Query["buscar"], desde = Context.Request.Query["desde"], hasta = Context.Request.Query["hasta"] })"
+                       class="btn btn-pdf-gaming w-100 py-2 shadow-sm">
+                        <i class="fa-solid fa-file-pdf me-1"></i> Exportar PDF
+                    </a>
                 </div>
             </form>
         </div>

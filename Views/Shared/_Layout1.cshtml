@@ -62,25 +62,26 @@
                                     <i class="fa-solid fa-user me-1 text-warning"></i> @usuarioLogueado.nombre
                                 </a>
 
-                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary shadow" aria-labelledby="menuUsuario">
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-gamestore shadow-lg" aria-labelledby="menuUsuario">
 
                                     <li>
-                                        <a class="dropdown-item text-light dropdown-custom-hover" asp-controller="Account" asp-action="Gestionar">
+                                        <a class="dropdown-item dropdown-item-gaming" asp-controller="Account" asp-action="Gestionar">
                                             <i class="fa-solid fa-user-gear me-2 text-warning"></i> Mi Cuenta
                                         </a>
                                     </li>
 
                                     <li>
-                                        <a class="dropdown-item text-light dropdown-custom-hover" asp-controller="Account" asp-action="MisCompras">
+                                        <a class="dropdown-item dropdown-item-gaming" asp-controller="Account" asp-action="MisCompras">
                                             <i class="fa-solid fa-bag-shopping me-2 text-warning"></i> Mis Compras
                                         </a>
                                     </li>
 
-                                    <li><hr class="dropdown-divider border-secondary"></li>
+                                    <li><hr class="dropdown-divider-gaming"></li>
 
                                     <li>
-                                        <a class="dropdown-item text-danger fw-bold dropdown-custom-hover" asp-controller="Account" asp-action="Logout">
-                                            <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión
+                                        <a class="dropdown-item dropdown-item-gaming text-danger-hover" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i>
+                                            <span class="fw-bold">Cerrar Sesión</span>
                                         </a>
                                     </li>
                                 </ul>

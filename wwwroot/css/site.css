@@ -138,3 +138,38 @@ body {
     background-color: #495057 !important; 
     color: #ffc107 !important; +
 }
+
+/* Estilo para el contenedor del menú */
+.dropdown-gamestore {
+    background-color: #002b45 !important; /* Azul de la imagen.jpg */
+    border: 2px solid #ffc107 !important; /* Borde amarillo */
+    border-radius: 12px !important;
+    padding: 8px 0;
+    min-width: 200px;
+}
+
+/* Estilo de los items del menú */
+.dropdown-item-gaming {
+    color: #ffffff !important;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.2s ease-in-out;
+}
+
+    /* Efecto Hover: Fondo amarillo, texto oscuro */
+    .dropdown-item-gaming:hover {
+        background-color: #ffc107 !important;
+        color: #002b45 !important;
+        transform: translateX(5px); /* Pequeño desplazamiento lateral */
+    }
+
+        /* Cambiar color del icono en hover */
+        .dropdown-item-gaming:hover i {
+            color: #002b45 !important;
+        }
+
+/* Divisor sutil */
+.dropdown-divider-gaming {
+    border-top: 1px solid rgba(255, 193, 7, 0.2);
+    margin: 8px 0;
+}
